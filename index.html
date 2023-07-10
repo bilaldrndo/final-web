@@ -20,6 +20,10 @@
   <script src="//stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"
     integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZh3w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
     crossorigin="anonymous"></script>
+
+  <script src="https://cdn.datatables.net/v/bs4/dt-1.11.0/datatables.min.js"></script>
+  <script src="http://code.highcharts.com/highcharts.js"></script>
+
 </head>
 
 <body>
@@ -142,23 +146,60 @@
     </div>
     <div></div>
   </div>
+
+  <div id="chart"></div>
+
 </body>
 
 <script>
-  /*TODO #1
-   * Load content from IP2LOCATION.json file
-   */
-  const content = require('./IP2LOCATION.json');
+  $(document).ready(function () {
 
-  /*TODO #2
-   * Use jQuery highcharts library to shows countries and total number of cities in each country
-   */
+    /*TODO #1
+     * Load content from IP2LOCATION.json file
+     */
+    $.getJSON('IP2LOCATION.json', function (data) {
 
-  /*TODO #3
-   * Use jQuery Datatable library to create HTML table with id = locations
-   * This table will list all countries with following columns:
-   * total number of regions and total number of cities
-   */
+      /*TODO #2
+       * Use jQuery highcharts library to shows countries and total number of cities in each country
+       */
+      var numberOfCitiesInEachCountry = {};
+
+      for (var i = 0; i < data.length; i++) {
+        var country = data[i].Country;
+        if (numberOfCitiesInEachCountry[country]) {
+          numberOfCitiesInEachCountry[country]++;
+        } else {
+          numberOfCitiesInEachCountry[country] = 1;
+        }
+      }
+
+      var toDisplay = [];
+      for (var country in numberOfCitiesInEachCountry) {
+        toDisplay.push({ name: country, y: numberOfCitiesInEachCountry[country] });
+      }
+
+      Highcharts.chart('chart', {
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: 'Total Cities by Country'
+        },
+        xAxis: {
+          type: 'category'
+        },
+        yAxis: {
+          title: {
+            text: 'Total Cities'
+          }
+        },
+        series: [{
+          name: 'Countries',
+          data: toDisplay
+        }]
+      });
+    });
+  });
 </script>
 
 </html>
